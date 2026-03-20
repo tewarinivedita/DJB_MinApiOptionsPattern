@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DJB_Application/DJB_Application.csproj" Id="c78953fb-9ea8-4e58-befa-f00517b32ac4" />
+  <Project Path="DJB_Core/DJB_Core.csproj" Id="4eef6f7a-371d-4d4e-993e-6c89778d05dc" />
+  <Project Path="DJB_EFModel/DJB_Api.csproj" />
+  <Project Path="DJB_Infrastructure/DJB_Infrastructure.csproj" Id="37a3c15d-260f-4dcb-a5a5-f8777382f44c" />
+</Solution>

@@ -1,0 +1,6 @@
+@DJB_Api_HostAddress = http://localhost:5135
+
+GET {{DJB_Api_HostAddress}}/
+Accept: application/json
+
+###
