@@ -16,7 +16,11 @@ namespace DJB_Infrastructure
             services.AddDbContext<DataBaseContext>((provider, options) => options.UseSqlServer(provider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOptions>>().Value.DefaultConnection));
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IExternalVendorRepository, ExternalVendorRepository>();
-            services.AddHttpClient<OfficialJokeHttpClient>((provider, options) =>
+            services.AddHttpClient<IPokemonHttpClient, PokemonHttpClient>((provider, options) =>
+            {
+                options.BaseAddress = new Uri(provider.GetRequiredService<IOptionsMonitor<ExternalApiUrlsOptions>>().CurrentValue.PokeMonUri);
+            });
+            services.AddHttpClient<IOfficialJokeHttpClient, OfficialJokeHttpClient>((provider, options) =>
             {
                 options.BaseAddress = new Uri(provider.GetRequiredService<IOptionsMonitor<ExternalApiUrlsOptions>>().CurrentValue.JokesUri);
             });

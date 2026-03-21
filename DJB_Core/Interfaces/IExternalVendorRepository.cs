@@ -9,6 +9,7 @@ namespace DJB_Core.Interfaces
 {
     public interface IExternalVendorRepository
     {
-        Task<ExchangeRateData> GetData();
+        Task<JokeData> GetJokeData();
+        Task<PokeMonData> GetPokemonData();
     }
 }

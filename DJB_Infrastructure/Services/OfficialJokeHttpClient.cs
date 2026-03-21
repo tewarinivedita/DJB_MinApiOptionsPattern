@@ -1,18 +1,13 @@
 ﻿using DJB_Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DJB_Infrastructure.Services
 {
-    public class OfficialJokeHttpClient(HttpClient httpClient)
+    public class OfficialJokeHttpClient(HttpClient httpClient) : IOfficialJokeHttpClient
     {
-        public async Task<ExchangeRateData> GetData()
+        public async Task<JokeData> GetData()
         {
-            return await httpClient.GetFromJsonAsync<ExchangeRateData>("random_joke");
+            return await httpClient.GetFromJsonAsync<JokeData>("random_joke");
         }
     }
 }

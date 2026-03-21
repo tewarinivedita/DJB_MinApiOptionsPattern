@@ -2,7 +2,7 @@
 
 namespace DJB_Core.Models
 {
-    public class ExchangeRateData
+    public class JokeData
     {
         [JsonPropertyName("type")]
         public string Type { get; set; }

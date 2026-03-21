@@ -25,42 +25,55 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/GetExchangeRate/", async (IMediator mediator) =>
+var externalGroup = app.MapGroup("/External")
+    .WithTags("External");
+
+externalGroup.MapGet("/GetPokemon/", async (IMediator mediator) =>
 {
-    var result = await mediator.Send(new GetExchangeRateQuery());
+    var result = await mediator.Send(new GetPokemonQuery());
     return Results.Ok(result);
 
 });
 
-app.MapGet("/Products/", async (IMediator mediator) =>
+externalGroup.MapGet("/GetJokes/", async (IMediator mediator) =>
+{
+    var result = await mediator.Send(new GetJokeQuery());
+    return Results.Ok(result);
+
+});
+
+var productsGroup = app.MapGroup("/products")
+    .WithTags("Products");
+
+productsGroup.MapGet("/Products/", async (IMediator mediator) =>
 {
     var result = await mediator.Send(new GetAllProductsQuery());
     return Results.Ok(result);
 
 });
 
-app.MapGet("/Products/{productId}", async (Guid productId, IMediator mediator) =>
+productsGroup.MapGet("/Products/{productId}", async (Guid productId, IMediator mediator) =>
 {
     var result = await mediator.Send(new GetProductByIdQuery(productId));
     return Results.Ok(result);
 
 });
 
-app.MapPost("/Products/", async (ProductEntity product, IMediator mediator) =>
+productsGroup.MapPost("/Products/", async (ProductEntity product, IMediator mediator) =>
 {
     var result = await mediator.Send(new AddProductCommand(product));
     return Results.Ok(result);
 
 });
 
-app.MapPut("/Products/{productId}", async (Guid productID, ProductEntity product, IMediator mediator) =>
+productsGroup.MapPut("/Products/{productId}", async (Guid productID, ProductEntity product, IMediator mediator) =>
 {
     var result = await mediator.Send(new UpdateProductCommand(productID, product));
     return Results.Ok(result);
 
 });
 
-app.MapDelete("/Products/{productId}", async (Guid productID, IMediator mediator) =>
+productsGroup.MapDelete("/Products/{productId}", async (Guid productID, IMediator mediator) =>
 {
     var result = await mediator.Send(new DeleteProductCommand(productID));
     return Results.Ok(result);
