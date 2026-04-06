@@ -17,6 +17,7 @@ builder.Services.AddAppDI(builder.Configuration);
 
 var app = builder.Build();
 
+//To Test CICD
 app.UseSwagger();
 app.UseSwaggerUI();
 
