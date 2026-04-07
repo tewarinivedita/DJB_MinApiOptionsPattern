@@ -27,7 +27,7 @@ else
 {
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "DJB API V1");
+        options.SwaggerEndpoint("../swagger/v1/swagger.json", "DJB API V1");
         options.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
     });
 }
