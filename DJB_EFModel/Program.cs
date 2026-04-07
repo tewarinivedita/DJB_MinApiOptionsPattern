@@ -19,7 +19,18 @@ var app = builder.Build();
 
 //Created Github actions try pushing change
 app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwaggerUI();
+}
+else
+{
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "DJB API V1");
+        options.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+    });
+}
 
 app.UseHttpsRedirection();
 
