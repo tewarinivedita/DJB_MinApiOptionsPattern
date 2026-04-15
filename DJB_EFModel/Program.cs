@@ -22,6 +22,7 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
+    //Test in Azure
     builder.Services.Configure<ConnectionStringsOptions>(builder.Configuration.GetSection("AZURE_SQL_CONNECTIONSTRING"));
     builder.Services.Configure<ExternalApiUrlsOptions>(builder.Configuration.GetSection("ExternalApiUrls"));
     builder.Services.AddDbContext<DataBaseContext>(options =>
