@@ -3,23 +3,32 @@ using DJB_Application.Commands;
 using DJB_Application.Queries;
 using DJB_Core.Entities;
 using DJB_Core.Options;
+using DJB_Infrastructure.Data;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 builder.Services.AddSwaggerGen();
+
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.Configure<ConnectionStringsOptions>(builder.Configuration.GetSection("ConnectionStrings"));
     builder.Services.Configure<ExternalApiUrlsOptions>(builder.Configuration.GetSection("ExternalApiUrls"));
+    builder.Services.AddDbContext<DataBaseContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
 else
 {
     builder.Services.Configure<ConnectionStringsOptions>(builder.Configuration.GetSection("AZURE_SQL_CONNECTIONSTRING"));
     builder.Services.Configure<ExternalApiUrlsOptions>(builder.Configuration.GetSection("ExternalApiUrls"));
+    builder.Services.AddDbContext<DataBaseContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
 }
+
+
 builder.Services.AddAppDI(builder.Configuration);
 
 var app = builder.Build();
