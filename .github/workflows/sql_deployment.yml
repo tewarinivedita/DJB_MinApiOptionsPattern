@@ -19,9 +19,6 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: UnInstall EF Tooling
-        run: dotnet tool uninstall --global dotnet-ef --version 8.0.0
-
       - name: Install EF Tooling
         run: |
           dotnet tool install --global dotnet-ef --version 8.0.0
