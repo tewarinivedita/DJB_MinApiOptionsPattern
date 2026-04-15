@@ -19,17 +19,24 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: UnInstall EF Tooling
+        run: dotnet tool uninstall --global dotnet-ef --version 8.0.0
 
       - name: Install EF Tooling
         run: |
           dotnet tool install --global dotnet-ef --version 8.0.0
-          dotnet tool restore
+          dotnet restore
 
+      - name: Build Project
+        run: dotnet build --configuration Release
+        
       - name: Generate Idempotent Script
         run: |
-          dotnet ef migrations script --output migrations.sql --idempotent --project DJB_Infrastructure.csproj --startup-project DJB_Api.csproj --context DataBaseContext
+          dotnet ef migrations --context DataBaseContext script --output migrations.sql --idempotent --project DJB_Infrastructure.csproj --startup-project DJB_Api.csproj
+
+      - name: Deploy script to Azure SQL
+        run: |
+          dotnet tool run dotnet-ef 
 
       - name: Azure Login
         uses: azure/login@v2
