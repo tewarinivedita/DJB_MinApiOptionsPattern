@@ -2,11 +2,18 @@ name: Deploy EF Migrations
 
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - master
+    workflow_dispatch: {}
+    workflow_run:
+      workflows: ["BuildAndDeploy_Api"]
+      types:
+        - completed
 
 jobs:
   migrate:
     runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
