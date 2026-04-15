@@ -1,14 +1,10 @@
 name: Deploy EF Migrations
 
 on:
-  push:
-    branches: 
-      - master
-    workflow_dispatch: {}
-    workflow_run:
-      workflows: ["BuildAndDeploy_Api"]
-      types:
-        - completed
+  workflow_run:
+    workflows: ["BuildAndDeploy_Api"]
+    types:
+      - completed
 
 jobs:
   migrate:
