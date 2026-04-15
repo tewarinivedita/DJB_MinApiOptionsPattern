@@ -1,0 +1,43 @@
+name: Deploy EF Migrations
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  migrate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Install EF Tooling
+        run: |
+          dotnet tool install --global dotnet-ef
+          dotnet tool restore
+
+      - name: Generate Idempotent Script
+        run: |
+          dotnet ef migrations script --output migrations.sql --idempotent --project ./DJB_Infrastructure --startup-project ./DJB_Api --context DataBaseContext
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5E23CBE03E8F4E6B9DAE9832725911DC }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_51C844BCCAB249DFB904E00F1407F3E5 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5A387F9582784CFAAD2F1D195EE56CFD }}
+      
+      - name: Deploy to Azure SQL
+        uses: azure/sql-action@v2
+        with:
+          connection-string: ${{ secrets.AZURE_SQL_CONNECTIONSTRING }}
+          path: './migrations.sql'
+
+
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
