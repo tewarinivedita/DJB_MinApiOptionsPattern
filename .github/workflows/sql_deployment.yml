@@ -21,7 +21,7 @@ jobs:
 
       - name: Install EF Tooling
         run: |
-          dotnet tool install --global dotnet-ef
+          dotnet tool install --global dotnet-ef --version 10.0.5
           dotnet tool restore
 
       - name: Generate Idempotent Script
