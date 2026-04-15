@@ -31,10 +31,6 @@ jobs:
         run: |
           dotnet ef migrations --context DataBaseContext script --output migrations.sql --idempotent --project DJB_Infrastructure.csproj --startup-project DJB_Api.csproj
 
-      - name: Deploy script to Azure SQL
-        run: |
-          dotnet tool run dotnet-ef 
-
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -46,8 +42,4 @@ jobs:
         uses: azure/sql-action@v2
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTIONSTRING }}
-          path: './migrations.sql'
-
-
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+          path: 'migrations.sql'
