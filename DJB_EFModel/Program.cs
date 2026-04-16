@@ -18,15 +18,25 @@ if (builder.Environment.IsDevelopment())
     builder.Services.Configure<ConnectionStringsOptions>(builder.Configuration.GetSection("ConnectionStrings"));
     builder.Services.Configure<ExternalApiUrlsOptions>(builder.Configuration.GetSection("ExternalApiUrls"));
     builder.Services.AddDbContext<DataBaseContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+                                        sqlOptions => sqlOptions.EnableRetryOnFailure(
+                                                        maxRetryCount: 3,
+                                                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                                                        errorNumbersToAdd: null)
+        ));
 }
 else
 {
     //Test in Azure
-    builder.Services.Configure<ConnectionStringsOptions>(builder.Configuration.GetSection("AZURE_SQL_CONNECTIONSTRING"));
+    builder.Services.Configure<ConnectionStringsOptions>(builder.Configuration.GetSection("ConnectionStrings"));
     builder.Services.Configure<ExternalApiUrlsOptions>(builder.Configuration.GetSection("ExternalApiUrls"));
     builder.Services.AddDbContext<DataBaseContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING")));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"), 
+                                sqlOptions => sqlOptions.EnableRetryOnFailure(
+                                                        maxRetryCount: 3,
+                                                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                                                        errorNumbersToAdd: null)
+));
 }
 
 
