@@ -33,7 +33,7 @@ jobs:
         
       - name: Generate Idempotent Script
         run: |
-          dotnet ef migrations script --idempotent --output ${{ github.workspace }}\deploymigrations.sql --c DataBaseContext --project ${{ github.workspace }}\DJB_Infrastructure\DJB_Infrastructure.csproj --startup-project ${{ github.workspace }}\DJB_EFModel\DJB_Api.csproj
+          dotnet ef migrations script --idempotent --output ${{ github.workspace }}\deploymigrations.sql --context DataBaseContext --project ${{ github.workspace }}\DJB_Infrastructure\DJB_Infrastructure.csproj --startup-project ${{ github.workspace }}\DJB_EFModel\DJB_Api.csproj
 
       - name: Azure Login
         uses: azure/login@v2
