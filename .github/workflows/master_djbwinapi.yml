@@ -18,24 +18,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: 'https://github.com/tewarinivedita/DJB_MinApiOptionsPattern/blob/master/DJB_EFModel/appsettings.Production.json'
+        env:
+          ConnectionStrings.AZURE_SQL_CONNECTIONSTRING: ${{ secrets.AZURE_SQL_CONNECTIONSTRING }}
+  
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-
-      - name: App Settings Variable Substitution
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: '${{env.DOTNET_ROOT}}\DJB_MinApiOptionsPattern\DJB_EFModel\appsettings.Production.json'
-        env:
-          ConnectionStrings.AZURE_SQL_CONNECTIONSTRING: ${{ secrets.AZURE_SQL_CONNECTIONSTRING }}
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/DJB_MinApiOptionsPattern"
-
+      
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
