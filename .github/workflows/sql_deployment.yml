@@ -33,7 +33,7 @@ jobs:
         
       - name: Generate Idempotent Script
         run: |
-          dotnet ef migrations --context DataBaseContext script --output migrations.sql --idempotent --project DJB_Infrastructure.csproj --startup-project DJB_Api.csproj
+          dotnet ef migrations script --context DataBaseContext --output ${{ github.workspace }}/deployV1.sql --idempotent --project DJB_Infrastructure.csproj --startup-project DJB_Api.csproj
 
       - name: Azure Login
         uses: azure/login@v2
@@ -42,9 +42,12 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_51C844BCCAB249DFB904E00F1407F3E5 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5A387F9582784CFAAD2F1D195EE56CFD }}
       
+      - name: List files to verify
+        run: ls -R ${{ github.workspace }}
+
       - name: Deploy to Azure SQL
         uses: azure/sql-action@v2
         with:
           connection-string: ${{ secrets.AZURE_SQL_CONNECTIONSTRING }}
-          path: ./migrations.sql
+          path: ${{ github.workspace }}/deployV1.sql
           action: sqlfile
