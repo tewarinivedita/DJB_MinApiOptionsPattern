@@ -16,15 +16,7 @@ jobs:
       contents: read #This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: App Settings Variable Substitution
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: 'https://github.com/tewarinivedita/DJB_MinApiOptionsPattern/blob/master/DJB_EFModel/appsettings.Production.json'
-        env:
-          ConnectionStrings.AZURE_SQL_CONNECTIONSTRING: ${{ secrets.AZURE_SQL_CONNECTIONSTRING }}
-  
+      - uses: actions/checkout@v4  
 
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
