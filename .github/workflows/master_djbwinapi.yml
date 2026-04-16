@@ -26,7 +26,7 @@ jobs:
       - name: App Settings Variable Substitution
         uses: microsoft/variable-substitution@v1
         with:
-          files: '${{env.DOTNET_ROOT}}/DJB_MinApiOptionsPattern/DJB_EFModel/appsettings.Production.json'
+          files: '${{env.DOTNET_ROOT}}\DJB_MinApiOptionsPattern\DJB_EFModel\appsettings.Production.json'
         env:
           ConnectionStrings.AZURE_SQL_CONNECTIONSTRING: ${{ secrets.AZURE_SQL_CONNECTIONSTRING }}
 
