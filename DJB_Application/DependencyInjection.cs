@@ -1,4 +1,5 @@
 ﻿
+using DJB_Application.Interface;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DJB_Application

@@ -1,44 +1,17 @@
 using DJB_Api;
 using DJB_Application.Commands;
+using DJB_Application.Dto;
 using DJB_Application.Queries;
 using DJB_Core.Entities;
-using DJB_Core.Options;
 using DJB_Infrastructure.Data;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-builder.Services.AddSwaggerGen();
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.Configure<ConnectionStringsOptions>(builder.Configuration.GetSection("ConnectionStrings"));
-    builder.Services.Configure<ExternalApiUrlsOptions>(builder.Configuration.GetSection("ExternalApiUrls"));
-    builder.Services.AddDbContext<DataBaseContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-                                        sqlOptions => sqlOptions.EnableRetryOnFailure(
-                                                        maxRetryCount: 3,
-                                                        maxRetryDelay: TimeSpan.FromSeconds(5),
-                                                        errorNumbersToAdd: null)
-        ));
-}
-else
-{
-    //Test in Azure
-    builder.Services.Configure<ConnectionStringsOptions>(builder.Configuration.GetSection("ConnectionStrings"));
-    builder.Services.Configure<ExternalApiUrlsOptions>(builder.Configuration.GetSection("ExternalApiUrls"));
-    builder.Services.AddDbContext<DataBaseContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING"), 
-                                sqlOptions => sqlOptions.EnableRetryOnFailure(
-                                                        maxRetryCount: 3,
-                                                        maxRetryDelay: TimeSpan.FromSeconds(5),
-                                                        errorNumbersToAdd: null)
-));
-}
-
+builder.Services.AddSwaggerGen(); 
+builder.Services.AddCors();
 
 builder.Services.AddAppDI(builder.Configuration);
 
@@ -46,10 +19,22 @@ var app = builder.Build();
 
 //Created Github actions try pushing change new
 app.UseSwagger();
+app.UseCors(policy =>
+    policy.WithOrigins("https://localhost:7235")
+          .AllowAnyMethod()
+          .AllowAnyHeader()
+          );
+
 if (app.Environment.IsDevelopment())
 {
     
     app.UseSwaggerUI();
+    var application = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataBaseContext>();
+
+    //USe this to apply pending migrations automatically when the application starts
+    //var pendingMigrations = await application.Database.GetPendingMigrationsAsync();
+    //if (pendingMigrations != null)
+    //    await application.Database.MigrateAsync();
 }
 else
 {
@@ -61,7 +46,17 @@ else
 }
 
 app.UseHttpsRedirection();
+#region AI
+var AIGroup = app.MapGroup("api/AI").WithTags("AI");
 
+AIGroup.MapPost("/Chat/", async (ChatRequest chatRequest, IMediator mediator) =>
+{
+    var result = await mediator.Send(new AskAnalyticsQuery(chatRequest.Message));
+    return Results.Ok(result);
+});
+#endregion
+
+#region Apiexternal
 var externalGroup = app.MapGroup("/External")
     .WithTags("External");
 
@@ -78,44 +73,85 @@ externalGroup.MapGet("/GetJokes/", async (IMediator mediator) =>
     return Results.Ok(result);
 
 });
+#endregion Apiexternal
 
+#region Internal
 var productsGroup = app.MapGroup("/products")
     .WithTags("Products");
 
-productsGroup.MapGet("/Products/", async (IMediator mediator) =>
+productsGroup.MapGet("/", async (IMediator mediator) =>
 {
     var result = await mediator.Send(new GetAllProductsQuery());
     return Results.Ok(result);
 
 });
 
-productsGroup.MapGet("/Products/{productId}", async (Guid productId, IMediator mediator) =>
+productsGroup.MapGet("/{productId}", async (Guid productId, IMediator mediator) =>
 {
     var result = await mediator.Send(new GetProductByIdQuery(productId));
     return Results.Ok(result);
 
 });
 
-productsGroup.MapPost("/Products/", async (ProductEntity product, IMediator mediator) =>
+productsGroup.MapPost("/", async (ProductEntity product, IMediator mediator) =>
 {
     var result = await mediator.Send(new AddProductCommand(product));
     return Results.Ok(result);
 
 });
 
-productsGroup.MapPut("/Products/{productId}", async (Guid productID, ProductEntity product, IMediator mediator) =>
+productsGroup.MapPut("/{productId}", async (Guid productID, ProductEntity product, IMediator mediator) =>
 {
     var result = await mediator.Send(new UpdateProductCommand(productID, product));
     return Results.Ok(result);
 
 });
 
-productsGroup.MapDelete("/Products/{productId}", async (Guid productID, IMediator mediator) =>
+productsGroup.MapDelete("/{productId}", async (Guid productID, IMediator mediator) =>
 {
     var result = await mediator.Send(new DeleteProductCommand(productID));
     return Results.Ok(result);
 
 });
 
+var ordersGroup = app.MapGroup("/Orders")
+    .WithTags("Orders");
+var ordersUrl = "/Orders/"; 
+
+ordersGroup.MapGet(ordersUrl, async (IMediator mediator) =>
+{
+    var result = await mediator.Send(new GetAllOrdersQuery());
+    return Results.Ok(result);
+
+});
+
+ordersGroup.MapGet(ordersUrl + "{orderId}", async (Guid orderId, IMediator mediator) =>
+{
+    var result = await mediator.Send(new GetOrdersByIdQuery(orderId));
+    return Results.Ok(result);
+
+});
+
+ordersGroup.MapPost(ordersUrl, async (OrderEntity order, IMediator mediator) =>
+{
+    var result = await mediator.Send(new AddOrderCommand(order));
+    return Results.Ok(result);
+
+});
+
+ordersGroup.MapPut(ordersUrl + "{orderId}", async (Guid orderId, OrderEntity order, IMediator mediator) =>
+{
+    var result = await mediator.Send(new UpdateOrderCommand(orderId, order));
+    return Results.Ok(result);
+
+});
+
+ordersGroup.MapDelete(ordersUrl + "{orderId}", async (Guid orderId, IMediator mediator) =>
+{
+    var result = await mediator.Send(new DeleteOrderCommand(orderId));
+    return Results.Ok(result);
+
+});
+#endregion Internal
 
 app.Run();

@@ -1,11 +1,14 @@
-﻿namespace DJB_Core.Entities
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DJB_Core.Entities
 {
     public class OrderEntity
     {
-        public Guid Id { get; set; }
+        [Key]
+        public Guid OrderId { get; set; }
         public string Date { get; set; } = null!;
-        public string TotalPurchase { get; set; } = null!;
-        public List<int> productids { get; set; } = null!;
+        public Guid ProductID { get; set; }
+        public string ProductName { get; set; }
 
     }
 }

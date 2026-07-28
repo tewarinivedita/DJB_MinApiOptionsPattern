@@ -1,9 +1,12 @@
-﻿using DJB_Core.Interfaces;
+﻿using DJB_Application.Interface;
+using DJB_Core.Interfaces;
 using DJB_Core.Options;
+using DJB_Infrastructure.AI;
 using DJB_Infrastructure.Data;
 using DJB_Infrastructure.Repository;
 using DJB_Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -14,6 +17,8 @@ namespace DJB_Infrastructure
         public static IServiceCollection AddInfrastructureDI(this IServiceCollection services)
         {
             services.AddDbContext<DataBaseContext>((provider, options) => options.UseSqlServer(provider.GetRequiredService<IOptionsSnapshot<ConnectionStringsOptions>>().Value.DefaultConnection));
+            services.AddScoped<IOpenAIService, OpenAIService>();
+            services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IExternalVendorRepository, ExternalVendorRepository>();
             services.AddHttpClient<IPokemonHttpClient, PokemonHttpClient>((provider, options) =>

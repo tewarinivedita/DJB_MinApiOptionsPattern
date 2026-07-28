@@ -1,6 +1,8 @@
 ﻿using DJB_Application;
+using DJB_Application.Interface;
 using DJB_Core;
 using DJB_Infrastructure;
+using DJB_Infrastructure.AI;
 
 namespace DJB_Api
 {
