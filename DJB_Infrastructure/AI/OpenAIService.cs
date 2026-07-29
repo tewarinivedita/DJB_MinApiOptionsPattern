@@ -3,7 +3,9 @@ using DJB_Application.Interface;
 using DJB_Core.Interfaces;
 using DJB_Core.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Client;
 using OpenAI;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DJB_Infrastructure.AI
 {
@@ -20,7 +22,19 @@ namespace DJB_Infrastructure.AI
             string apiKey = configuration["OpenApiOptions:OPENAI_API_KEY"];
             _chatClient = new OpenAIClient(apiKey);
         }
+        public async Task<ChatResponse> GenerateAnswerAsync(string question, CancellationToken cancellationToken)
+        {
+            var chatc = _chatClient.GetChatClient("gpt-4.1-mini");
+            var response =
+                   await chatc.CompleteChatAsync(question);
+            if (response != null)
+            {
+                ChatResponse chatResponse = new ChatResponse() { Response = response.Value.Content[0].Text };
+                return chatResponse;
+            }
 
+            return new ChatResponse() { Response = "Sorry, I couldn't determine what information you need." };
+        }
         public async Task<ChatResponse> BuildFilterAsync(string question, CancellationToken cancellationToken)
         {
             var lowerPrompt = question.ToLowerInvariant();
@@ -52,11 +66,12 @@ namespace DJB_Infrastructure.AI
                 //var chatc = _chatClient.GetChatClient("gpt-4.1-mini");
                 var chatc = _chatClient.GetChatClient("gpt-4.1-mini");
 
-                //var response =
-                //    await chatc.CompleteChatAsync(aiPrompt);
-                //analyticsRequest.Answer = response.Value.Content[0].Text;
-                ChatResponse chatResp = new ChatResponse() { Response = "Kutki is our most ordered product! It's a popular choice among customers for its quality and effectiveness. Would you like to know more about it or place an order?" };
-                return chatResp;
+                var response =
+                    await chatc.CompleteChatAsync(aiPrompt);
+                analyticsRequest.Answer = response.Value.Content[0].Text;
+                //ChatResponse chatResponse = new ChatResponse() { Response = "Kutki is our most ordered product! It's a popular choice among customers for its quality and effectiveness. Would you like to know more about it or place an order?" };
+                ChatResponse chatResponse = new ChatResponse() { Response = response.Value.Content[0].Text };
+                return chatResponse;
             }
 
             

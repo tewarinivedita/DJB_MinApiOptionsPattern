@@ -8,6 +8,6 @@ namespace DJB_Application.Interface
 
         Task<ChatResponse> BuildFilterAsync(string question, CancellationToken cancellationToken);
 
-        Task<string> GenerateAnswerAsync(string question, object data);
+        Task<ChatResponse> GenerateAnswerAsync(string question, CancellationToken cancellationToken);
     }
 }

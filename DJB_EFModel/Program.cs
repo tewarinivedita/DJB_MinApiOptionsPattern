@@ -54,6 +54,11 @@ AIGroup.MapPost("/Chat/", async (ChatRequest chatRequest, IMediator mediator) =>
     var result = await mediator.Send(new AskAnalyticsQuery(chatRequest.Message));
     return Results.Ok(result);
 });
+AIGroup.MapPost("/AskAnything/", async (ChatRequest chatRequest, IMediator mediator) =>
+{
+    var result = await mediator.Send(new AskAnyThingAIQuery(chatRequest.Message));
+    return Results.Ok(result);
+});
 #endregion
 
 #region Apiexternal
