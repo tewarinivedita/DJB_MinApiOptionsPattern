@@ -1,21 +1,38 @@
 using DJB_Api;
+using DJB_Api.Middleware;
 using DJB_Application.Commands;
 using DJB_Application.Dto;
 using DJB_Application.Queries;
 using DJB_Core.Entities;
+using DJB_Core.Interfaces;
 using DJB_Infrastructure.Data;
+using DJB_Infrastructure.Http;
+using DJB_Infrastructure.Repository;
 using MediatR;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<CorrelationIdHandler>();
+builder.Services
+    .AddHttpClient<IExternalVendorRepository, ExternalVendorRepository>()
+    .AddHttpMessageHandler<CorrelationIdHandler>();
+builder.Services
+    .AddHttpClient("DownstreamApi", client =>
+    {
+        client.BaseAddress = new Uri("https://localhost:7119");
+    })
+    .AddHttpMessageHandler<CorrelationIdHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 builder.Services.AddSwaggerGen(); 
 builder.Services.AddCors();
-
 builder.Services.AddAppDI(builder.Configuration);
 
 var app = builder.Build();
+app.UseMiddleware<CorrelationIdMiddleware>();
+
+
 
 //Created Github actions try pushing change new
 app.UseSwagger();
@@ -159,4 +176,31 @@ ordersGroup.MapDelete(ordersUrl + "{orderId}", async (Guid orderId, IMediator me
 });
 #endregion Internal
 
+
+//test propagation of correlation id - Open DownstreamApi and run before testing this
+app.MapGet("/test-propagation", async (
+    IHttpClientFactory httpClientFactory,
+    HttpContext context) =>
+{
+    var outgoingId = context.Request.Headers["X-Correlation-ID"]
+        .FirstOrDefault();
+
+    var client = httpClientFactory.CreateClient("DownstreamApi");
+    var downstream = await client.GetFromJsonAsync<DownstreamResponse>(
+        "/test");
+
+    return Results.Ok(new
+    {
+        Service = "DJB_Api",
+        OutgoingCorrelationId = outgoingId,
+        Downstream = downstream
+    });
+});
+
+
+
+
 app.Run();
+public sealed record DownstreamResponse(
+    string? Service,
+    string? ReceivedCorrelationId);
