@@ -64,4 +64,8 @@ jobs:
           app-name: 'DJB_AIWeb'
           slot-name: 'Production'
           package: .
-          
+      
+      - name: Verify Azure subscription
+        shell: pwsh
+        run: |
+          az account show --subscription "${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5A387F9582784CFAAD2F1D195EE56CFD }}" --query "{name:name,id:id,tenantId:tenantId}" --output json
